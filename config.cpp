@@ -48,7 +48,7 @@ SDK::UWorld* config::GetUWorld()
     static uint64_t gworld_ptr = 0;
     if (!gworld_ptr)
     {
-        auto gworld = signature("48 8B 05 ? ? ? ? EB 05").instruction(3).add(7);
+        auto gworld = signature("48 8B 1D ?? ?? ?? ?? 48 85 DB 74 33 41 B0").instruction(3).add(7);
         gworld_ptr = gworld.GetPointer();
     }
     return (*(SDK::UWorld**)(gworld_ptr));
