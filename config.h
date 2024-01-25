@@ -12,8 +12,8 @@ class config
 public:
 	//offsets
 	DWORD64 ClientBase = 0;
-	DWORD64 offset_Tick = 0x2AB44D0;//APalPlayerCharacter::Tick
-	DWORD64 offset_GetAllPlayers = 0x2962330;// UPalCharacterImportanceManager::GetAllPlayer
+	DWORD64 offset_Tick = 0x2A9E9D0;//APalPlayerCharacter::Tick
+	DWORD64 offset_GetAllPlayers = 0x29588BE;// UPalCharacterImportanceManager::GetAllPlayer
 	//check
 	bool IsESP = false;
 	bool IsAimbot = false;
