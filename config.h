@@ -12,7 +12,7 @@ class config
 public:
 	//offsets
 	DWORD64 ClientBase = 0;
-	DWORD64 offset_Tick = 0x2A9E9D0;//APalPlayerCharacter::Tick
+	DWORD64 offset_Tick = 0x2AB1DC0;//APalPlayerCharacter::Tick
 	DWORD64 offset_AddStatus = 0x2B0E960; //UPalNetworkIndividualComponent::AddPlayerCharacterStatusPoint_ToServer
 	//check
 	bool IsESP = false;
