@@ -2,48 +2,39 @@
 #include "../include/Menu.hpp"
 #include "SDK.hpp"
 #include "config.h"
-
-AddStatus Equi;
-AddStatus OldEqui;
-
-void DetourEqui(SDK::UPalNetworkIndividualComponent* p_this, SDK::FPalInstanceID* ID, SDK::TArray<SDK::FPalGotStatusPoint>* AddStatusPointArray)
+std::string rand_str(const int len)
 {
-    if(AddStatusPointArray->IsValid())
+    std::string str;
+    char c;
+    int idx;
+    for (idx = 0; idx < len; idx++)
     {
-        for (int i = 0; i < AddStatusPointArray->Count(); i++)
-        {
-            (*AddStatusPointArray)[i].StatusPoint = -1 * Config.EqModifiler;
-        }
+        c = 'a' + rand() % 26;
+        str.push_back(c);
     }
-    return;
+    return str;
 }
+void Damage(SDK::APalCharacter* character, int32 damage)
+{
+    SDK::FPalDamageInfo  info = SDK::FPalDamageInfo();
+    info.AttackElementType = SDK::EPalElementType::Normal;
+    info.Attacker = Config.GetPalPlayerCharacter();
+    info.AttackerGroupID = Config.GetPalPlayerState()->IndividualHandleId.PlayerUId;
+    info.AttackerLevel = 50;
+    info.AttackType = SDK::EPalAttackType::Weapon;
+    info.bApplyNativeDamageValue = true;
+    info.bAttackableToFriend = true;
+    info.IgnoreShield = true;
+    info.NativeDamageValue = damage;
+    Config.GetPalPlayerState()->SendDamage_ToServer(character, info);
+}
+
 int InputTextCallback(ImGuiInputTextCallbackData* data) {
     char inputChar = data->EventChar;
 
     Config.Update(Config.inputTextBuffer);
 
     return 0;
-}
-void ToggleEqui(bool isEq)
-{
-    if (isEq)
-    {
-        if (Equi = NULL)
-        {
-            Equi = (AddStatus)(Config.ClientBase + Config.offset_AddStatus);
-            MH_CreateHook(Equi, DetourEqui, reinterpret_cast<void**>(OldEqui));
-            MH_EnableHook(Equi);
-            return;
-        }
-        MH_EnableHook(Equi);
-        return;
-    }
-    else
-    {
-        MH_DisableHook(Equi);
-    }
-    
-    
 }
 //SDK::FPalDebugOtomoPalInfo palinfo = SDK::FPalDebugOtomoPalInfo();
 //SDK::TArray<SDK::EPalWazaID> EA = { 0U };
@@ -203,6 +194,24 @@ namespace DX11_Base {
 
             ImGui::Checkbox("InfStamina", &Config.IsInfStamina);
 
+
+            if (ImGui::Button("RandomName", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
+            {
+                if (Config.GetPalPlayerCharacter() != NULL)
+                {
+                    if (Config.GetPalPlayerCharacter()->GetPalPlayerController() != NULL)
+                    {
+                        SDK::UKismetStringLibrary* lib = SDK::UKismetStringLibrary::GetDefaultObj();
+                        std::string s = rand_str(20);
+
+                        wchar_t  ws[255];
+                        swprintf(ws, 255, L"%hs", s.c_str());
+
+                        Config.GetPalPlayerCharacter()->GetPalPlayerController()->Transmitter->NetworkIndividualComponent->UpdateCharacterNickName_ToServer(Config.GetPalPlayerCharacter()->CharacterParameterComponent->IndividualHandle->ID, SDK::FString(ws));
+                    }
+                }
+            }
+
             //Creadit Mokobake
             //ImGui::Checkbox("MuteKiGodmode", &Config.IsMuteki);
 
@@ -233,11 +242,11 @@ namespace DX11_Base {
         void TABExploit()
         {
             //Config.GetPalPlayerCharacter()->GetPalPlayerController()->GetPalPlayerState()->RequestSpawnMonsterForPlayer(name, 5, 1);
-            ImGui::Checkbox("IsQuick", &Config.IsQuick);
-            ImGui::Checkbox("SafeTeleport", &Config.IsSafe);
+            ImGui::Checkbox("Show Quick Tab", &Config.IsQuick);
+            ImGui::Checkbox("Open Manager Menu", &Config.bisOpenManager);
+            ImGui::Checkbox("Show Teleporter Tab", &Config.bisTeleporter);
             //creadit 
             //ImGui::Checkbox("PalIsMonster", &Config.IsMonster);
-            ImGui::InputFloat3("Pos:", Config.Pos);
             ImGui::InputInt("EXP:", &Config.EXP);
             ImGui::InputText("Item Name", Config.ItemName,sizeof(Config.ItemName));
             ImGui::InputInt("Item Num", &Config.Item);
@@ -280,64 +289,6 @@ namespace DX11_Base {
             {
                 UnlockAllEffigies();
             }
-
-           ////ImGui::InputText("Pal Name", Config.PalName, sizeof(Config.PalName));
-           // //if (!Config.IsMonster){ImGui::InputInt("Pal Rank", &Config.PalRank);}
-           // //if (Config.IsMonster) { ImGui::InputInt("Pal Count", &Config.PalNum); }
-           // ImGui::InputInt("Pal lvl", &Config.PalLvL);
-            /*if (ImGui::Button("Spawn Pal", ImVec2(ImGui::GetWindowContentRegionWidth() - 3, 20)))
-            {
-                if (Config.GetPalPlayerCharacter() != NULL)
-                {
-                    if (Config.GetPalPlayerCharacter()->GetPalPlayerController() != NULL)
-                    {
-                        if (Config.GetPalPlayerCharacter()->GetPalPlayerController()->GetPalPlayerState() != NULL)
-                        {
-                            if (Config.PalName != NULL)
-                            {
-                                g_Console->printdbg("\n\n[+] PalName: %s [+]\n\n", g_Console->color.green, Config.ItemName);
-                                SpawnPal(Config.PalName,Config.IsMonster,Config.PalRank,Config.PalLvL,Config.PalNum);
-                            }
-                        }
-                    }
-                }
-            }*/
-            if (ImGui::Button("HomeTP", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
-            {
-                SDK::APalPlayerCharacter* p_appc = Config.GetPalPlayerCharacter();
-                if (p_appc != NULL)
-                {
-                    if (Config.GetPalPlayerCharacter()->GetPalPlayerController() != NULL)
-                    {
-                        if (Config.GetPalPlayerCharacter()->GetPalPlayerController()->GetPalPlayerState() != NULL)
-                        {
-                            if (Config.IsSafe)
-                            {
-                                Config.GetPalPlayerCharacter()->GetPalPlayerController()->TeleportToSafePoint_ToServer();
-                            }
-                            else
-                            {
-                                Config.GetPalPlayerCharacter()->GetPalPlayerController()->GetPalPlayerState()->RequestRespawn();
-                            }
-
-                        }
-                    }
-                }
-            }
-           /* if (ImGui::Button("AnywhereTP", ImVec2(ImGui::GetWindowContentRegionWidth() - 3, 20)))
-            {
-                if (Config.GetPalPlayerCharacter()!= NULL)
-                {
-                    if (Config.GetPalPlayerCharacter()->GetPalPlayerController() != NULL)
-                    {
-                        if (Config.Pos != NULL)
-                        {
-                            SDK::FVector vector = { Config.Pos[0],Config.Pos[1],Config.Pos[2] };
-                            AnyWhereTP(vector,Config.IsSafe);
-                        }
-                    }
-                }
-            }*/
             if (ImGui::Button("ToggleFly", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
             {
                 Config.IsToggledFly = !Config.IsToggledFly;
@@ -392,17 +343,12 @@ namespace DX11_Base {
                     }
                 }
             }
-            if (ImGui::Button("Equivalent", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
-            {
-                Config.isEq = !Config.isEq;
-                ToggleEqui(Config.isEq);
-            }
-            ImGui::InputInt("EquiModifiler", &Config.EqModifiler);
         }
         void TABConfig()
         {
+            
             ImGui::Text("PalWorld Menu");
-            ImGui::Text("VERSION: v1.1");
+            ImGui::Text("VERSION: v1.2.3");
 
             ImGui::Spacing();
             ImGui::Separator();
@@ -435,6 +381,46 @@ namespace DX11_Base {
                 }
             }
         }
+        void TABTeleporter()
+        {
+            ImGui::Checkbox("SafeTeleport", &Config.IsSafe);
+            if (ImGui::Button("Home", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
+            {
+                SDK::APalPlayerCharacter* p_appc = Config.GetPalPlayerCharacter();
+                if (p_appc != NULL)
+                {
+                    if (Config.GetPalPlayerCharacter()->GetPalPlayerController() != NULL)
+                    {
+                        if (Config.GetPalPlayerCharacter()->GetPalPlayerController()->GetPalPlayerState() != NULL)
+                        {
+                            if (Config.IsSafe)
+                            {
+                                Config.GetPalPlayerCharacter()->GetPalPlayerController()->TeleportToSafePoint_ToServer();
+                            }
+                            else
+                            {
+                                Config.GetPalPlayerCharacter()->GetPalPlayerController()->GetPalPlayerState()->RequestRespawn();
+                            }
+
+                        }
+                    }
+                }
+            }
+            ImGui::InputFloat3("Pos",Config.Pos);
+            ImGui::SameLine();
+            if (ImGui::Button("TP", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
+            {
+                SDK::FVector vector = { Config.Pos[0],Config.Pos[1],Config.Pos[2] };
+                AnyWhereTP(vector, Config.IsSafe);
+            }
+            for (const auto& pair : database::locationMap) {
+                const std::string& locationName = pair.first;
+                if (ImGui::Button(locationName.c_str())) {
+                    SDK::FVector location = SDK::FVector(pair.second[0], pair.second[1], pair.second[2]);
+                    AnyWhereTP(location, Config.IsSafe);
+                }
+            }
+        }
         void TABQuick()//Creadit:asashi
         {
                 if (ImGui::Button("Basic Items stack", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20))) {
@@ -463,6 +449,10 @@ namespace DX11_Base {
         }
 		if (g_GameVariables->m_ShowMenu)
 			MainMenu();
+        if (Config.bisOpenManager && g_GameVariables->m_ShowMenu)
+        {
+            ManagerMenu();
+        }
 
 		if (g_GameVariables->m_ShowHud)
 			HUD(&g_GameVariables->m_ShowHud);
@@ -473,7 +463,117 @@ namespace DX11_Base {
         if (Config.isDebugESP)
             ESP_DEBUG(Config.mDebugESPDistance, ImVec4(0,1,0,1));
 	}
+    void Menu::ManagerMenu()
+    {
+        if (ImGui::Begin("Manager", &g_GameVariables->m_ShowMenu, 96))
+        {
+            if (Config.GetUWorld() != NULL)
+            {
+                ImGui::Checkbox("filterPlayer", &Config.filterPlayer);
+                SDK::TArray<SDK::AActor*> T = Config.GetUWorld()->PersistentLevel->Actors;
+                for (int i = 0; i < T.Count(); i++)
+                {
+                    if (T[i] != NULL)
+                    {
+                        if (T[i]->IsA(SDK::APalCharacter::StaticClass()))
+                        {
+                            SDK::APalCharacter* Character = (SDK::APalCharacter*)T[i];
+                            SDK::FString name;
+                            if (Config.filterPlayer)
+                            {
+                                if (!T[i]->IsA(SDK::APalPlayerCharacter::StaticClass()))
+                                {
+                                    continue;
+                                }
+                            }
+                            if (T[i]->IsA(SDK::APalPlayerCharacter::StaticClass()))
+                            {
+                                if (!Character) { continue; }
+                                Character->CharacterParameterComponent->GetNickname(&name);
+                            }
+                            else
+                            {
+                                SDK::UKismetStringLibrary* lib = SDK::UKismetStringLibrary::GetDefaultObj();
+                                if (!Character) { continue; }
+                                std::string s = Character->GetFullName();
+                                size_t firstUnderscorePos = s.find('_');
 
+                                if (firstUnderscorePos != std::string::npos) {
+                                    std::string result = s.substr(firstUnderscorePos + 1);
+
+                                    size_t secondUnderscorePos = result.find('_');
+
+                                    if (secondUnderscorePos != std::string::npos) {
+                                        result = result.substr(0, secondUnderscorePos);
+                                    }
+                                    wchar_t  ws[255];
+                                    swprintf(ws, 255, L"%hs", result);
+                                    name = SDK::FString(ws);
+                                }
+                            }
+                            ImGui::Text(name.ToString().c_str());
+                            ImGui::SameLine();
+                            ImGui::PushID(i);
+                            if (ImGui::Button("Kill"))
+                            {
+                                if (T[i]->IsA(SDK::APalCharacter::StaticClass()))
+                                {
+                                    Damage(Character, 99999999999);
+                                }
+                                continue;
+                            }
+                            ImGui::SameLine();
+                            if (ImGui::Button("TP"))
+                            {
+                                if (Config.GetPalPlayerCharacter() != NULL)
+                                {
+                                    if (!Character) { continue; }
+                                    SDK::FVector vector = Character->K2_GetActorLocation();
+                                    AnyWhereTP(vector, Config.IsSafe);
+                                }
+                            }
+
+                            /*if (Character->IsA(SDK::APalPlayerCharacter::StaticClass()))
+                            {
+                                ImGui::SameLine();
+                                if (ImGui::Button("Boss"))
+                                {
+                                    if (Config.GetPalPlayerCharacter() != NULL)
+                                    {
+                                        auto controller = Config.GetPalPlayerCharacter()->GetPalPlayerController();
+                                        if (controller != NULL)
+                                        {
+                                            controller->Transmitter->BossBattle->RequestBossBattleEntry_ToServer(SDK::EPalBossType::ElectricBoss, (SDK::APalPlayerCharacter*)Character);
+                                            controller->Transmitter->BossBattle->RequestBossBattleStart_ToServer(SDK::EPalBossType::ElectricBoss, (SDK::APalPlayerCharacter*)Character);
+                                        }
+                                    }
+                                }
+                            }*/
+                            if (Character->IsA(SDK::APalPlayerCharacter::StaticClass()))
+                            {
+                                ImGui::SameLine();
+                                if (ImGui::Button("MaskIt"))
+                                {
+                                    if (Config.GetPalPlayerCharacter() != NULL)
+                                    {
+                                        auto controller = Config.GetPalPlayerCharacter()->GetPalPlayerController();
+                                        if (controller != NULL)
+                                        {
+                                            auto player = (SDK::APalPlayerCharacter*)Character;
+                                            SDK::FString fakename;
+                                            player->CharacterParameterComponent->GetNickname(&fakename);
+                                            Config.GetPalPlayerCharacter()->GetPalPlayerController()->Transmitter->NetworkIndividualComponent->UpdateCharacterNickName_ToServer(Config.GetPalPlayerCharacter()->CharacterParameterComponent->IndividualHandle->ID, fakename);
+                                        }
+                                    }
+                                }
+                            }
+                            ImGui::PopID();
+                        }
+                    }
+                }
+            }
+        }
+    }
 	void Menu::MainMenu()
 	{
         if (!g_GameVariables->m_ShowDemo)
@@ -525,6 +625,11 @@ namespace DX11_Base {
           if (Config.IsQuick && ImGui::BeginTabItem("Quick"))
           {
               Tabs::TABQuick();
+              ImGui::EndTabItem();
+          }
+          if (Config.bisTeleporter && ImGui::BeginTabItem("Teleporter"))
+          {
+              Tabs::TABTeleporter();
               ImGui::EndTabItem();
           }
            ImGui::EndTabBar();

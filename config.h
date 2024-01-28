@@ -1,11 +1,10 @@
 #pragma once
 #include <Windows.h>
 #include "libs/utils/memory.h"
-#include "database.h"
 #include "SDK.hpp"
+#include "database.h"
 
-typedef bool(*Tick)(SDK::APalPlayerCharacter* m_this,float DeltaSecond);
-typedef void(*AddStatus)(SDK::UPalNetworkIndividualComponent* p_this, SDK::FPalInstanceID* ID, SDK::TArray<SDK::FPalGotStatusPoint>* AddStatusPointArray);
+typedef bool(*Tick)(SDK::APalPlayerCharacter* m_this, float DeltaSecond);
 
 class config
 {
@@ -28,20 +27,21 @@ public:
 	bool IsMonster = false;
 	bool IsQuick = false;
 	bool matchDbItems = true;
-	bool isEq = false;
 	bool isDebugESP = false;
-	float mDebugESPDistance = 5.0f;
-
-	//def and value
+	bool bisOpenManager = false;
+	bool filterPlayer = false;
+	bool bisRandomName = false;
+	bool bisTeleporter = false;
 	float SpeedModiflers = 1.0f;
+	//def and value
+	float mDebugESPDistance = 5.0f;
 	int DamageUp = 0;
 	int DefuseUp = 0;
 	int EXP = 0;
 	int Item = 0;
-	float Pos[3] = {0,0,0};
+	float Pos[3] = { 0,0,0 };
 	char ItemName[255];
 	char inputTextBuffer[255] = "";
-	int EqModifiler = 1;
 	SDK::UWorld* gWorld = nullptr;
 	SDK::APalPlayerCharacter* localPlayer = NULL;
 	SDK::TArray<SDK::APalPlayerCharacter*> AllPlayers = {};
@@ -53,7 +53,7 @@ public:
 	enum QuickItemSet
 	{
 		basic_items_stackable,
-	    basic_items_single,
+		basic_items_single,
 		pal_unlock_skills,
 		spheres,
 		tools
@@ -69,12 +69,11 @@ public:
 	static SDK::APalPlayerState* GetPalPlayerState();
 	static SDK::UPalPlayerInventoryData* GetInventoryComponent();
 	static SDK::APalWeaponBase* GetPlayerEquippedWeapon();
-	static SDK::TArray<SDK::APalPlayerCharacter*> GetTAllPlayers();
 	static bool	GetTAllPlayers(SDK::TArray<class SDK::APalCharacter*>* outResult);
 	static bool	GetTAllImpNPC(SDK::TArray<class SDK::APalCharacter*>* outResult);
 	static bool	GetTAllNPC(SDK::TArray<class SDK::APalCharacter*>* outResult);
 	static bool	GetTAllPals(SDK::TArray<class SDK::APalCharacter*>* outResult);
-	static bool GetAllActorsofType(SDK::UClass* mType, std::vector<SDK::AActor*>* outArray, bool bLoopAllLevels = false , bool bSkipLocalPlayer = false);
+	static bool GetAllActorsofType(SDK::UClass* mType, std::vector<SDK::AActor*>* outArray, bool bLoopAllLevels = false, bool bSkipLocalPlayer = false);
 	static void Init();
 	static void Update(const char* filterText);
 	static const std::vector<std::string>& GetFilteredItems();
