@@ -164,6 +164,85 @@ namespace DX11_Base
                 Config.IsToggledFly = !Config.IsToggledFly;
                 ExploitFly(Config.IsToggledFly);
             }
+            if (ImGui::Button("KillAura", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
+            {
+                if (Config.GetPalPlayerCharacter() != NULL)
+                {
+                    if (Config.GetPalPlayerCharacter()->GetPalPlayerController() != NULL)
+                    {
+
+                        if (Config.GetPalPlayerCharacter()->GetPalPlayerController()->GetPalPlayerState())
+                        {
+                            SDK::TArray<SDK::AActor*> T = Config.GetUWorld()->PersistentLevel->Actors;
+                            for (int i = 0; i < T.Count(); i++)
+                            {
+
+                                if (T[i] != NULL)
+                                {
+                                    if (T[i]->IsA(SDK::APalCharacter::StaticClass()))
+                                    {
+                                        SDK::APalCharacter* monster = (SDK::APalCharacter*)T[i];
+                                        if (monster->IsLocallyControlled())
+                                        {
+                                            continue;
+                                        }
+                                        Damage(monster, 9999999999999);
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (ImGui::Button("Crash Server", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))//
+            {
+                if (Config.GetPalPlayerCharacter() != NULL)
+                {
+                    if (Config.GetPalPlayerCharacter()->GetPalPlayerController() != NULL)
+                    {
+                        Config.GetPalPlayerCharacter()->GetPalPlayerController()->RequestLiftupThrow_ToServer(NULL);
+                    }
+                }
+            }
+            if (ImGui::Button("BossBatt Aura", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
+            {
+                if (Config.GetPalPlayerCharacter() != NULL)
+                {
+                    auto localplayer = Config.GetPalPlayerCharacter();
+                    if (localplayer->GetPalPlayerController() != NULL)
+                    {
+                        auto localcontroller = localplayer->GetPalPlayerController();
+                        //localcontroller->Transmitter->BossBattle->RequestBossBattleEntry_ToServer(SDK::EPalBossType::GrassBoss, Config.GetPalPlayerCharacter());
+                        if (Config.GetUWorld() != NULL)
+                        {
+                            SDK::TArray<SDK::AActor*> T = Config.GetUWorld()->PersistentLevel->Actors;
+                            if (T.IsValid())
+                            {
+                                for (int i = 0; i < T.Count(); i++)
+                                {
+                                    if (T[i] != NULL)
+                                    {
+                                        if (T[i]->IsA(SDK::APalPlayerCharacter::StaticClass()))
+                                        {
+                                            auto other = (SDK::APalPlayerCharacter*)T[i];
+                                            if (other->GetPalPlayerController() != NULL)
+                                            {
+                                                if (other->GetPalPlayerController()->IsLocalPlayerController())
+                                                {
+                                                    continue;
+                                                }
+                                            }
+                                            localcontroller->Transmitter->BossBattle->RequestBossBattleEntry_ToServer(SDK::EPalBossType::ElectricBoss, other);
+                                        }
+                                    }
+                                }
+                            }
+                            localcontroller->Transmitter->BossBattle->RequestBossBattleStart_ToServer(SDK::EPalBossType::ElectricBoss, localplayer);
+                        }
+                    }
+                }
+            }
 
             /*if (ImGui::Button("DeleteSelf", ImVec2(ImGui::GetWindowContentRegionWidth() - 3, 20)))
             {
@@ -531,6 +610,22 @@ namespace DX11_Base
                                 SDK::FString fakename;
                                 player->CharacterParameterComponent->GetNickname(&fakename);
                                 Config.GetPalPlayerCharacter()->GetPalPlayerController()->Transmitter->NetworkIndividualComponent->UpdateCharacterNickName_ToServer(Config.GetPalPlayerCharacter()->CharacterParameterComponent->IndividualHandle->ID, fakename);
+                            }
+                        }
+                    }
+                }
+                if (Character->IsA(SDK::APalPlayerCharacter::StaticClass()))
+                {
+                    ImGui::SameLine();
+                    if (ImGui::Button("Boss"))
+                    {
+                        if (Config.GetPalPlayerCharacter() != NULL)
+                        {
+                            auto controller = Config.GetPalPlayerCharacter()->GetPalPlayerController();
+                            if (controller != NULL)
+                            {
+                                controller->Transmitter->BossBattle->RequestBossBattleEntry_ToServer(SDK::EPalBossType::ElectricBoss, (SDK::APalPlayerCharacter*)Character);
+                                controller->Transmitter->BossBattle->RequestBossBattleStart_ToServer(SDK::EPalBossType::ElectricBoss, (SDK::APalPlayerCharacter*)Character);
                             }
                         }
                     }

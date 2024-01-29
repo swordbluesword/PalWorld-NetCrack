@@ -6,13 +6,14 @@
 #include "ItemList.hpp"
 
 typedef bool(*Tick)(SDK::APalPlayerCharacter* m_this, float DeltaSecond);
-
+typedef void(*SendDamage)(SDK::APalPlayerState* d_this, SDK::APalCharacter* Target, SDK::FPalDamageInfo* info);
 class config
 {
 public:
 	//offsets
 	DWORD64 ClientBase = 0;
 	DWORD64 offset_Tick = 0x2AB1DC0;//APalPlayerCharacter::Tick
+	DWORD64 offset_senddmg = 0x2A57920; //APalPlayerState::SendDamage_ToServer
 	//check
 	bool IsESP = false;
 	bool IsAimbot = false;

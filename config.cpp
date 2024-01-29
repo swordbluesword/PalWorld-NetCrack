@@ -8,6 +8,9 @@ config Config;
 Tick TickFunc;
 Tick OldTickFunc;
 
+SendDamage SendDamageFunc;
+SendDamage OldSendDamageFunc;
+
 void config::Update(const char* filterText)
 {
     Config.db_filteredItems.clear();
@@ -210,7 +213,7 @@ void config::Init()
     TickFunc = (Tick)(Config.ClientBase + Config.offset_Tick);
 
     MH_CreateHook(TickFunc, DetourTick, reinterpret_cast<void**>(&OldTickFunc));
-
+    MH_CreateHook(SendDamageFunc, DetourSendDamage, reinterpret_cast<void**>(&OldSendDamageFunc));
     //init database
     ZeroMemory(&Config.db_filteredItems, sizeof(Config.db_filteredItems));
 }

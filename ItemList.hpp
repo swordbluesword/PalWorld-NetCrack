@@ -278,7 +278,7 @@ namespace itemlist
         "Pan|Bread",
         "Cake|Cake",
         "CheeseBurger|Cheeseburger",
-        "ChickenSaute|Chikipi Sauté",
+        "ChickenSaute|Chikipi Saut",
         "Carbonara|Carbonara",
         "Meat_BerryGoat|Caprity Meat",
         "Meat_ChickenPal|Chikipi Poultry",
