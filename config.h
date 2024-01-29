@@ -7,6 +7,13 @@
 
 typedef bool(*Tick)(SDK::APalPlayerCharacter* m_this, float DeltaSecond);
 typedef void(*SendDamage)(SDK::APalPlayerState* d_this, SDK::APalCharacter* Target, SDK::FPalDamageInfo* info);
+
+
+//Creadit:Evoc
+using FName_Ctor = void(__fastcall*)(SDK::FName*, const char*, int);
+using n_time = std::chrono::high_resolution_clock;
+
+
 class config
 {
 public:
@@ -15,6 +22,7 @@ public:
 	DWORD64 offset_Tick = 0x2AB1DC0;//APalPlayerCharacter::Tick
 	DWORD64 offset_senddmg = 0x2A57920; //APalPlayerState::SendDamage_ToServer
 	//check
+	bool spec = false;
 	bool IsESP = false;
 	bool IsAimbot = false;
 	bool IsSpeedHack = false;
@@ -33,6 +41,9 @@ public:
 	bool filterPlayer = false;
 	bool bisRandomName = false;
 	bool bisTeleporter = false;
+	bool filterCharacters = true;
+	bool filterGuilds = false;
+	bool filterMapParts = false;
 	float SpeedModiflers = 1.0f;
 	//def and value
 	float mDebugESPDistance = 5.0f;
@@ -48,16 +59,19 @@ public:
 	SDK::TArray<SDK::APalPlayerCharacter*> AllPlayers = {};
 	SDK::UPalCharacterImportanceManager* UCIM = NULL;
 	SDK::UObject* WorldContextObject = NULL;
+	std::vector<SDK::FVector> ToReveal = std::vector<SDK::FVector>{};
 	int AddItemSlot = 0;
 	int AddItemCount = 2;
 
 	enum QuickItemSet
 	{
+		
 		basic_items_stackable,
 		basic_items_single,
 		pal_unlock_skills,
 		spheres,
-		tools
+		tools,
+		starter
 
 	};
 	//Filtered Items
@@ -79,5 +93,10 @@ public:
 	static void Init();
 	static void Update(const char* filterText);
 	static const std::vector<std::string>& GetFilteredItems();
+	static auto timeSince(n_time::time_point start) {
+		n_time::time_point now = n_time::now();
+		return std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+	}
+	
 };
 extern config Config;
