@@ -25,6 +25,14 @@ void config::Update(const char* filterText)
     std::sort(Config.db_filteredItems.begin(), Config.db_filteredItems.end());
 }
 const std::vector<std::string>& config::GetFilteredItems() { return Config.db_filteredItems; }
+void DetourSendDamage(SDK::APalPlayerState* d_this, SDK::APalCharacter* Target, SDK::FPalDamageInfo* info)
+{
+    /*info->bAttackableToFriend = true;
+    info->IgnoreShield = true;
+    info->NativeDamageValue = 9999999;
+    info->bApplyNativeDamageValue = true;*/
+    return OldSendDamageFunc(d_this, Target, info);
+}
 
 bool DetourTick(SDK::APalPlayerCharacter* m_this, float DeltaSecond)
 {

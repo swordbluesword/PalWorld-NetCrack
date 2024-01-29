@@ -164,6 +164,31 @@ namespace DX11_Base
                 Config.IsToggledFly = !Config.IsToggledFly;
                 ExploitFly(Config.IsToggledFly);
             }
+            /*if (ImGui::Button("DeleteSelf", ImVec2(ImGui::GetWindowContentRegionWidth() - 3, 20)))
+            {
+                SDK::APalPlayerCharacter* p_appc = Config.GetPalPlayerCharacter();
+                if (p_appc != NULL)
+                {
+                    if (Config.GetPalPlayerCharacter()->GetPalPlayerController() != NULL)
+                    {
+                        if (Config.GetPalPlayerCharacter()->GetPalPlayerController()->GetPalPlayerState() != NULL)
+                        {
+                            Config.GetPalPlayerCharacter()->GetPalPlayerController()->GetPalPlayerState()->Debug_RequestDeletePlayerSelf_ToServer();
+                        }
+                    }
+                }
+            }*/
+
+            if (ImGui::Button("GodHealth", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
+                ReviveLocalPlayer();
+
+            //Creadit WoodgamerHD
+            if (ImGui::Button("Give exp", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
+                GiveExperiencePoints(Config.EXP);
+        }
+        void TABThroll()
+        {
+
             if (ImGui::Button("KillAura", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
             {
                 if (Config.GetPalPlayerCharacter() != NULL)
@@ -201,7 +226,7 @@ namespace DX11_Base
                 {
                     if (Config.GetPalPlayerCharacter()->GetPalPlayerController() != NULL)
                     {
-                        Config.GetPalPlayerCharacter()->GetPalPlayerController()->RequestLiftupThrow_ToServer(NULL);
+                        Config.GetPalPlayerCharacter()->GetPalPlayerController()->RequestLiftup_ToServer(NULL);
                     }
                 }
             }
@@ -243,28 +268,6 @@ namespace DX11_Base
                     }
                 }
             }
-
-            /*if (ImGui::Button("DeleteSelf", ImVec2(ImGui::GetWindowContentRegionWidth() - 3, 20)))
-            {
-                SDK::APalPlayerCharacter* p_appc = Config.GetPalPlayerCharacter();
-                if (p_appc != NULL)
-                {
-                    if (Config.GetPalPlayerCharacter()->GetPalPlayerController() != NULL)
-                    {
-                        if (Config.GetPalPlayerCharacter()->GetPalPlayerController()->GetPalPlayerState() != NULL)
-                        {
-                            Config.GetPalPlayerCharacter()->GetPalPlayerController()->GetPalPlayerState()->Debug_RequestDeletePlayerSelf_ToServer();
-                        }
-                    }
-                }
-            }*/
-
-            if (ImGui::Button("GodHealth", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
-                ReviveLocalPlayer();
-
-            //Creadit WoodgamerHD
-            if (ImGui::Button("Give exp", ImVec2(ImGui::GetContentRegionAvail().x - 3, 20)))
-                GiveExperiencePoints(Config.EXP);
         }
         
         void TABConfig()
@@ -680,6 +683,11 @@ namespace DX11_Base
             if (ImGui::BeginTabItem("EXPLOIT"))
             {
                 Tabs::TABExploit();
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Thrall"))
+            {
+                Tabs::TABThroll();
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("Database"))
