@@ -716,7 +716,19 @@ namespace DX11_Base
                         if (ImGui::Button(GetAsyncKeyState(VK_LSHIFT) ? "-99%" : "Kill"))
                             Damage(Character, GetAsyncKeyState(VK_LSHIFT) ? (Character->CharacterParameterComponent->GetHP().Value - 1) / 1000 : 99999999999);
                     }
-
+                    if (Actor->IsA(SDK::APalPlayerCharacter::StaticClass()))
+                    {
+                        ImGui::SameLine();
+                        if (ImGui::Button("Boss"))
+                        {
+                            if (Config.GetPalPlayerController)
+                            {
+                                
+                                Config.GetPalPlayerController()->Transmitter->BossBattle->RequestBossBattleEntry_ToServer(SDK::EPalBossType::ElectricBoss,(SDK::APalPlayerCharacter*)Character);
+                                Config.GetPalPlayerController()->Transmitter->BossBattle->RequestBossBattleStart_ToServer(SDK::EPalBossType::ElectricBoss, (SDK::APalPlayerCharacter*)Character);
+                            }
+                        }
+                    }
                     if (Actor->IsA(SDK::APalPlayerCharacter::StaticClass())) {
                         ImGui::SameLine();
                         if (ImGui::Button("Join Guild")) {
