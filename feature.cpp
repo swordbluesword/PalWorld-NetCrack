@@ -679,6 +679,23 @@ void RenderWaypointsToScreen()
 	}
 }
 
+void ForceJoinGuild( SDK::APalPlayerCharacter* targetPlayer )
+{
+	if ( !targetPlayer->CharacterParameterComponent->IndividualHandle )
+		return;
+	if ( !Config.GetPalPlayerController() )
+		return;
+
+	UPalNetworkGroupComponent* group = Config.GetPalPlayerController()->Transmitter->Group;
+	if ( !group )
+		return;
+
+	SDK::FGuid myPlayerId = Config.GetPalPlayerController()->GetPlayerUId();
+	SDK::FGuid playerId = targetPlayer->CharacterParameterComponent->IndividualHandle->ID.PlayerUId;
+
+	group->RequestJoinGuildForPlayer_ToServer( myPlayerId, playerId );
+}
+
 ///	OLDER METHODS
 //SDK::FPalDebugOtomoPalInfo palinfo = SDK::FPalDebugOtomoPalInfo();
 //SDK::TArray<SDK::EPalWazaID> EA = { 0U };
